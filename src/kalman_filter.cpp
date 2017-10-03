@@ -44,7 +44,7 @@ void KalmanFilter::Update(const VectorXd &z) {
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
 
   MatrixXd Hj = tools.CalculateJacobian(x_);
-  VectorXd z_pred = tools.RadarProcessFunction(x_);
+  VectorXd z_pred = tools.CarthesianToPolar(x_);
 
   VectorXd y = z - z_pred;
   MatrixXd Ht = Hj.transpose();

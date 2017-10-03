@@ -74,7 +74,7 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 }
 
 
-VectorXd Tools::RadarProcessFunction(const VectorXd& x_input) {
+VectorXd Tools::CarthesianToPolar(const VectorXd& x_input) {
 
   VectorXd x_out = VectorXd(3);
 
@@ -95,6 +95,25 @@ VectorXd Tools::RadarProcessFunction(const VectorXd& x_input) {
   }
 
   x_out << len_r, atan2(p_y, p_x), rate;
-  
+
+  return x_out;
+}
+
+
+VectorXd Tools::PolarToCarthesian(const VectorXd& x_input) {
+
+  VectorXd x_out = VectorXd(4);
+
+  float rho = x_input[0];
+  float phi = x_input[1];
+  float rho_rate = x_input[2];
+
+  float p_x = rho * cos(phi);
+  float p_y = rho * sin(phi);
+  float v_x = rho_rate * cos(phi);
+  float v_y = rho_rate * sin(phi);
+
+  x_out << p_x, p_y, v_x, v_y;
+
   return x_out;
 }

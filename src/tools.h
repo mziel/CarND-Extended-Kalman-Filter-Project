@@ -33,6 +33,18 @@ public:
   * A helper method to process function h(x) for radar data.
   */
   MatrixXd RadarProcessFunction(const VectorXd& x_state);
+
+/**
+  * A helper method to process function h(x) for radar data. (convert carthesian coordinates to polar)
+  * Convert carthesian coordinates to polar.
+  */
+  VectorXd CarthesianToPolar(const VectorXd& x_state);
+
+/**
+  * A helper method for processing input data.
+  * Convert polar coordinates to carthesian.
+  */
+  VectorXd PolarToCarthesian(const VectorXd& x_state);
 };
 
 #endif /* TOOLS_H_ */
