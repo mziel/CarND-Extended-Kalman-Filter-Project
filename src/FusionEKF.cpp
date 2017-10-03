@@ -31,15 +31,37 @@ FusionEKF::FusionEKF() {
         0, 0.0009, 0,
         0, 0, 0.09;
 
-  /**
-  TODO:
-    * Finish initializing the FusionEKF.
-    * Set the process and measurement noises
-  */
-
   // measurement mapping matrix - laser
   H_laser_ << 1, 0, 0, 0,
           0, 1, 0, 0;
+
+  // state vector
+  VectorXd x_in = VectorXd(4);
+  x_in << 0, 0, 0, 0;
+
+  // state covariance matrix
+  MatrixXd P_in = MatrixXd(4, 4);
+  P_in << 0, 0, 0, 0,
+          0, 0, 0, 0,
+          0, 0, 0, 0,
+          0, 0, 0, 0;
+
+  // state transistion matrix (dt == 0 initially)
+  MatrixXd F_in = MatrixXd(4, 4);
+  F_in << 1, 0, 0, 0,
+          0, 1, 0, 0,
+          0, 0, 1, 0,
+          0, 0, 0, 1;
+
+  // process covariance matrix
+  MatrixXd Q_in = MatrixXd(4, 4);
+  Q_in << 0, 0, 0, 0,
+          0, 0, 0, 0,
+          0, 0, 0, 0,
+          0, 0, 0, 0;
+
+  //Initializes Kalman filter
+  ekf_.Init(x_in, P_in, F_in, H_laser_, R_laser_, R_radar_, Q_in);
 }
 
 /**
