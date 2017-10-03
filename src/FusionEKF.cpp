@@ -31,6 +31,10 @@ FusionEKF::FusionEKF() {
         0, 0.0009, 0,
         0, 0, 0.09;
 
+  //measurement covariance matrix
+  MatrixXd R_in = MatrixXd(1, 1);
+  R_in << 1;
+
   // measurement mapping matrix - laser
   H_laser_ << 1, 0, 0, 0,
           0, 1, 0, 0;
@@ -61,7 +65,7 @@ FusionEKF::FusionEKF() {
           0, 0, 0, 0;
 
   //Initializes Kalman filter
-  ekf_.Init(x_in, P_in, F_in, H_laser_, R_laser_, R_radar_, Q_in);
+  ekf_.Init(x_in, P_in, F_in, H_laser_, R_in, Q_in);
 }
 
 /**
@@ -145,11 +149,13 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // Validate the measurements
     if (measurements[0] != 0.0 && measurements[1] != 0.0 && measurements[2] != 0.0) {
+      ekf_.R_ = R_radar_;
       ekf_.UpdateEKF(measurements); // Radar updates
     }
   } else {
     // Validate the measurements
     if (measurement_pack.raw_measurements_[0] != 0.0 && measurement_pack.raw_measurements_[1] != 0.0) {
+      ekf_.R_ = R_laser_;
       ekf_.Update(measurements); // Laser updates
     }
   }
