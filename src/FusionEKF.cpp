@@ -149,8 +149,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      ****************************************************************************/
   
     VectorXd measurements = measurement_pack.raw_measurements_;
-    string measurement_type = (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) ? "radar" : "laser";
-    cout << "Measurement type = " << measurement_type << endl;
+    // string measurement_type = (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) ? "radar" : "laser";
+    // cout << "Measurement type = " << measurement_type << endl;
   
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       // Validate the measurements
@@ -168,7 +168,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
   
     // print the output
     cout << "x_ = " << ekf_.x_ << endl;
-    // cout << "P_ = " << ekf_.P_ << endl;
-    cout << "_____________________________ " << endl;
+    cout << "P_ = " << ekf_.P_ << endl;
+    // cout << "_____________________________ " << endl;
   }
 }
