@@ -11,10 +11,7 @@ Tools::~Tools() {}
 
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
-  /**
-  TODO:
-    * Calculate the RMSE here.
-  */
+
   VectorXd rmse(4);
   rmse << 0,0,0,0;
   
@@ -49,10 +46,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
-  /**
-  TODO:
-    * Calculate a Jacobian here.
-  */
+
   Hj(3,4);
   //recover state parameters
   float px = x_state(0);
@@ -77,4 +71,30 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
         py*(vx*py - vy*px)/c3, px*(px*vy - py*vx)/c3, px/c2, py/c2;
   
   return Hj;
+}
+
+
+VectorXd Tools::RadarProcessFunction(const VectorXd& x_input) {
+
+  VectorXd x_out = VectorXd(3);
+
+  float p_x = x_input[0];
+  float p_y = x_input[1];
+  float v_x = x_input[2];
+  float v_y = x_input[3];
+
+  float len_r = sqrt(p_x*p_x + p_y*p_y);
+  float rate;
+  if (len_r < 0.00001)
+  {
+    rate = 0.0;
+  }
+  else
+  {
+    rate = (p_x*p_y + p_y*v_y) / len_r;
+  }
+
+  x_out << len_r, atan2(p_y, p_x), rate;
+  
+  return x_out;
 }
