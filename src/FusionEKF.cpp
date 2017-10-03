@@ -90,6 +90,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       Convert radar from polar to cartesian coordinates and initialize state.
       */
       ekf_.x_ = tools.PolarToCarthesian(measurement_pack.raw_measurements_);
+      ekf_.x_(2) = 0.0; // radar measurement does not contain enough information to determine the state variable velocities
+      ekf_.x_(3) = 0.0;
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
       /**
@@ -106,61 +108,67 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
              0, 0, v_variance, 0,
              0, 0, 0, v_variance;
 
+    previous_timestamp_ = measurement_pack.timestamp_;
+
     // done initializing, no need to predict or update
     is_initialized_ = true;
     return;
-  }
-
-  /*****************************************************************************
-   *  Prediction
-   ****************************************************************************/
-
-  // Update the state transition matrix F according to the new elapsed time
-  float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0; //dt - expressed in seconds
-  previous_timestamp_ = measurement_pack.timestamp_;
-  ekf_.F_(0, 2) = dt;
-  ekf_.F_(1, 3) = dt;
-
-  // Use noise_ax = 9 and noise_ay = 9 for your Q matrix
-  int noise_ax = 9;
-  int noise_ay = 9;
-
-  // Update the process noise covariance matrix
-  MatrixXd Q_v = MatrixXd(2, 2);
-  Q_v << noise_ax, 0,
-        0, noise_ay;
-
-  float dt2 = dt * dt;
-  MatrixXd G = MatrixXd(4, 2);
-  G << dt2/2.0, 0,
-       0, dt2/2.0,
-       dt,       0,
-       0,       dt;
-  ekf_.Q_ = G*Q_v*G.transpose();
-
-  ekf_.Predict();
-
-  /*****************************************************************************
-   *  Update
-   ****************************************************************************/
-
-  VectorXd measurements = measurement_pack.raw_measurements_;
-
-  if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-    // Validate the measurements
-    if (measurements[0] != 0.0 && measurements[1] != 0.0 && measurements[2] != 0.0) {
-      ekf_.R_ = R_radar_;
-      ekf_.UpdateEKF(measurements); // Radar updates
-    }
   } else {
-    // Validate the measurements
-    if (measurement_pack.raw_measurements_[0] != 0.0 && measurement_pack.raw_measurements_[1] != 0.0) {
-      ekf_.R_ = R_laser_;
-      ekf_.Update(measurements); // Laser updates
-    }
-  }
 
-  // print the output
-  cout << "x_ = " << ekf_.x_ << endl;
-  cout << "P_ = " << ekf_.P_ << endl;
+    /*****************************************************************************
+     *  Prediction
+     ****************************************************************************/
+  
+    // Update the state transition matrix F according to the new elapsed time
+    float dt = (measurement_pack.timestamp_ - previous_timestamp_) / 1000000.0; //dt - expressed in seconds
+    previous_timestamp_ = measurement_pack.timestamp_;
+    ekf_.F_(0, 2) = dt;
+    ekf_.F_(1, 3) = dt;
+  
+    // Use noise_ax = 9 and noise_ay = 9 for your Q matrix
+    int noise_ax = 9;
+    int noise_ay = 9;
+  
+    // Update the process noise covariance matrix
+    MatrixXd Q_v = MatrixXd(2, 2);
+    Q_v << noise_ax, 0,
+          0, noise_ay;
+  
+    float dt2 = dt * dt;
+    MatrixXd G = MatrixXd(4, 2);
+    G << dt2/2.0, 0,
+         0, dt2/2.0,
+         dt,       0,
+         0,       dt;
+    ekf_.Q_ = G*Q_v*G.transpose();
+  
+    ekf_.Predict();
+  
+    /*****************************************************************************
+     *  Update
+     ****************************************************************************/
+  
+    VectorXd measurements = measurement_pack.raw_measurements_;
+    string measurement_type = (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) ? "radar" : "laser";
+    cout << "Measurement type = " << measurement_type << endl;
+  
+    if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
+      // Validate the measurements
+      if (measurements[0] != 0.0 && measurements[1] != 0.0 && measurements[2] != 0.0) {
+        ekf_.R_ = R_radar_;
+        ekf_.UpdateEKF(measurements); // Radar updates
+      }
+    } else {
+      // Validate the measurements
+      if (measurements[0] != 0.0 && measurements[1] != 0.0) {
+        ekf_.R_ = R_laser_;
+        ekf_.Update(measurements); // Laser updates
+      }
+    }
+  
+    // print the output
+    cout << "x_ = " << ekf_.x_ << endl;
+    // cout << "P_ = " << ekf_.P_ << endl;
+    cout << "_____________________________ " << endl;
+  }
 }

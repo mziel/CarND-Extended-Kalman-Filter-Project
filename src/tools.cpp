@@ -62,7 +62,7 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
   //check division by zero
   if(fabs(c1) < 0.0001){
       cout << "CalculateJacobian () - Error - Division by Zero" << endl;
-      return Hj;
+      c1 = 0.0001;
   }
   
   //compute the Jacobian matrix
@@ -91,7 +91,7 @@ VectorXd Tools::CarthesianToPolar(const VectorXd& x_input) {
   }
   else
   {
-    rate = (p_x*p_y + p_y*v_y) / len_r;
+    rate = (p_x*v_x + p_y*v_y) / len_r;
   }
 
   x_out << len_r, atan2(p_y, p_x), rate;
@@ -117,3 +117,15 @@ VectorXd Tools::PolarToCarthesian(const VectorXd& x_input) {
 
   return x_out;
 }
+
+float Tools::NormalizeAtanDiff(const float atan_diff) {
+  float PI_2 = 2 * M_PI;
+    if (atan_diff > PI_2) {
+      return atan_diff - PI_2;
+    } else if ( atan_diff < -1 * PI_2) {
+      return atan_diff + PI_2;
+    } else {
+      return atan_diff;
+    }
+}
+

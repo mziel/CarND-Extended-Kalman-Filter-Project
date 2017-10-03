@@ -1,6 +1,7 @@
 #ifndef TOOLS_H_
 #define TOOLS_H_
 #include <vector>
+#include <cmath>
 #include "Eigen/Dense"
 
 using Eigen::MatrixXd;
@@ -29,11 +30,6 @@ public:
   */
   MatrixXd CalculateJacobian(const VectorXd& x_state);
 
- /**
-  * A helper method to process function h(x) for radar data.
-  */
-  MatrixXd RadarProcessFunction(const VectorXd& x_state);
-
 /**
   * A helper method to process function h(x) for radar data. (convert carthesian coordinates to polar)
   * Convert carthesian coordinates to polar.
@@ -45,6 +41,11 @@ public:
   * Convert polar coordinates to carthesian.
   */
   VectorXd PolarToCarthesian(const VectorXd& x_state);
+
+/**
+  * A helper method to normalize atan difference between (-M_PI, M_PI)
+  */
+  float NormalizeAtanDiff(const float atan_diff);
 };
 
 #endif /* TOOLS_H_ */
